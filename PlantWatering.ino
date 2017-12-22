@@ -37,13 +37,14 @@ void loop() {
     Serial.print("Humidity: ");
     Serial.print(HS.readHumidity());
     Serial.println("-----------------------------------------------------");
+    delay(60000); // Stops for a minute in order to not send a stupid amount of unnescessary information to the phone, and also to allow for better time management (So I can stick to 16 bit integers)
     }
     else
     {
     Serial.println("Error reading sensor!");
     }
+    time++;
   }
-  delay(60000); // Stops for a minute in order to not send a stupid amount of unnescessary information to the phone, and also to allow for better time management (So I can stick to 16 bit integers)
   }
   
 
