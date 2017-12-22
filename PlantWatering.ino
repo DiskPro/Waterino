@@ -43,7 +43,7 @@ void loop() {
     {
     Serial.println("Error reading sensor!");
     }
-    time++;
+    timeW++;
   }
   }
   
