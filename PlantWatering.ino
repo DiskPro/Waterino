@@ -9,7 +9,11 @@ DHT HS(HSPIN, TYPE);
 char val;         // Stores serial port data value
 
 int rot = 0;
-int timeW = 0;
+long milNow = 0;
+long pastMilW = 0;
+long pastMilI = 0;
+
+bool manual = false;
 
 Servo s;
 
@@ -23,29 +27,44 @@ void setup()
 }
  
 void loop() {
-  if( timeW = 720 ) // Waters every 720 minutes (12 hours)
+  milNow = millis();
+  
+  if( milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
   {
     s.write(60);
     delay(2000); // Time it'll spend watering the plant
     s.write(0);
-    timeW = 0;
+    pastMilW = milNow;
   }
   if( Serial.available() )       // Checks for Bluetooth conectivity
   {
+    if(Serial.read() == "manual")
+    {
+      manual = true;
+    }
+    if(Serial.read() == "water" && manual)
+    {
+      s.write(60);
+      delay(2000); // Time it'll spend watering the plant
+      s.write(0);
+    }
     if(!isnan(HS.readHumidity())) // Checks if value is compatible/error occured
     {
+      if(milNow - pastMilI >= 60000)
+      {
     Serial.print("Humidity: ");
     Serial.print(HS.readHumidity());
     Serial.println("-----------------------------------------------------");
-    delay(60000); // Stops for a minute in order to not send a stupid amount of unnescessary information to the phone, and also to allow for better time management (So I can stick to 16 bit integers)
+      pastMilI = milNow;
+      }
     }
     else
     {
     Serial.println("Error reading sensor!");
     }
-    timeW++;
   }
   }
+  
   
 
 
