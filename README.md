@@ -4,7 +4,7 @@
 A timed plant-watering system that sends humidity information via Bluetooth to the cellphone of the user.
 
 ## TODO
-* Add a way to water at any time using Bluetooth
+* Make a buzzer beep whenever the plant is watered/send message to phone.
 * Add a way to change watering intervals based on relative air humidity
 
 ## Other stuff
