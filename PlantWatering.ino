@@ -34,19 +34,31 @@ void loop() {
     s.write(60);
     delay(2000); // Time it'll spend watering the plant
     s.write(0);
+    Serial.println("Plant watered!");
     pastMilW = milNow;
   }
   if( Serial.available() )       // Checks for Bluetooth conectivity
   {
     if(Serial.read() == "manual")
     {
-      manual = true;
+      if(manual == true)
+      {
+       manual = false;
+       Serial.println("Switched to automatic mode!");
+      }
+      else
+      {
+       manual = true;
+       Serial.println("Switched to manual mode!");
+      }
+      
     }
     if(Serial.read() == "water" && manual)
     {
       s.write(60);
       delay(2000); // Time it'll spend watering the plant
       s.write(0);
+      Serial.println("Plant watered!");
     }
     if(!isnan(HS.readHumidity())) // Checks if value is compatible/error occured
     {
