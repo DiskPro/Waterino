@@ -8,6 +8,8 @@ DHT HS(HSPIN, TYPE);
 
 char val;         // Stores serial port data value
 
+const int buzzer = 9;
+
 int rot = 0;
 long milNow = 0;
 long pastMilW = 0;
@@ -34,7 +36,16 @@ void loop() {
     s.write(60);
     delay(2000); // Time it'll spend watering the plant
     s.write(0);
+    if(Serial.available())
+    {
     Serial.println("Plant watered!");
+    }
+    else
+    {
+    tone(buzzer, 1500);
+    delay(1000);
+    noTone(buzzer);
+    }
     pastMilW = milNow;
   }
   if( Serial.available() )       // Checks for Bluetooth conectivity
