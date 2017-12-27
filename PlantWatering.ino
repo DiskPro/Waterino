@@ -10,10 +10,10 @@ char val;         // Stores serial port data value
 
 const int buzzer = 9;
 
-int rot = 0;
-long milNow = 0;
-long pastMilW = 0;
-long pastMilI = 0;
+int rot = 0; //Servo rotation
+long milNow = 0; //Current time
+long pastMilW = 0; //Stores last time plant was watered
+long pastMilI = 0; //Stores last time humidity information was sent
 
 bool manual = false;
 
@@ -27,13 +27,10 @@ void setup()
 
   HS.begin();
 }
- 
-void loop() {
-  milNow = millis();
-  
-  if( milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
-  {
-    s.write(60);
+
+void water()
+{
+  s.write(60);
     delay(2000); // Time it'll spend watering the plant
     s.write(0);
     if(Serial.available())
@@ -46,6 +43,14 @@ void loop() {
     delay(1000);
     noTone(buzzer);
     }
+}
+ 
+void loop() {
+  milNow = millis();
+  
+  if( milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
+  {
+    water();
     pastMilW = milNow;
   }
   if( Serial.available() )       // Checks for Bluetooth conectivity
@@ -66,10 +71,8 @@ void loop() {
     }
     if(Serial.read() == "water" && manual)
     {
-      s.write(60);
-      delay(2000); // Time it'll spend watering the plant
-      s.write(0);
-      Serial.println("Plant watered!");
+      water();
+      pastMilW = milNow;
     }
     if(!isnan(HS.readHumidity())) // Checks if value is compatible/error occured
     {
@@ -87,7 +90,3 @@ void loop() {
     }
   }
   }
-  
-  
-
-
