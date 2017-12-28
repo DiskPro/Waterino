@@ -43,6 +43,7 @@ void water()
     delay(1000);
     noTone(buzzer);
     }
+    pastMilW = milNow;
 }
  
 void loop() {
@@ -51,7 +52,6 @@ void loop() {
   if( milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
   {
     water();
-    pastMilW = milNow;
   }
   if( Serial.available() )       // Checks for Bluetooth conectivity
   {
@@ -72,7 +72,6 @@ void loop() {
     if(Serial.read() == "water" && manual)
     {
       water();
-      pastMilW = milNow;
     }
     if(!isnan(HS.readHumidity())) // Checks if value is compatible/error occured
     {
