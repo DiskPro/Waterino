@@ -49,7 +49,7 @@ void water()
 void loop() {
   milNow = millis();
   
-  if( milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
+  if(milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
   {
     water();
   }
@@ -57,7 +57,7 @@ void loop() {
   {
     if(Serial.read() == "manual")
     {
-      if(manual == true)
+      if(manual)
       {
        manual = false;
        Serial.println("Switched to automatic mode!");
