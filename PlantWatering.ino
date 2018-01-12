@@ -11,11 +11,13 @@ char val;         // Stores serial port data value
 const int buzzer = 9;
 
 int rot = 0; //Servo rotation
-long milNow = 0; //Current time
-long pastMilW = 0; //Stores last time plant was watered
-long pastMilI = 0; //Stores last time humidity information was sent
+unsigned long milNow = 0; //Current time
+unsigned long pastMilW = 0; //Stores last time plant was watered
+unsigned long pastMilI = 0; //Stores last time humidity information was sent
+unsigned long intervalRollover = 0; //Stores interval between max value for unsigned int and last time the plant was watered, compensating for rollover
 
 bool manual = false;
+bool rolledover = false;
 
 Servo s;
 
@@ -30,7 +32,7 @@ void setup()
 
 void water()
 {
-  s.write(60);
+    s.write(60);
     delay(2000); // Time it'll spend watering the plant
     s.write(0);
     if(Serial.available())
@@ -49,11 +51,20 @@ void water()
 void loop() {
   milNow = millis();
   
+  if(pastMilW >= 4251767295 && milNow < pastMilW) // Checks if millis() has rolled over and sets value for compensation
+  {
+    rolledover = true;
+    intervalRollover = 4294967295 - pastMilW;
+  }
+  if(rolledover)
+  {
+    milNow += intervalRollover; 
+  }
   if(milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
   {
     water();
   }
-  if( Serial.available() )       // Checks for Bluetooth conectivity
+  if(Serial.available())       // Checks for Bluetooth conectivity
   {
     if(Serial.read() == "manual")
     {
