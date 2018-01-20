@@ -11,6 +11,7 @@ char val;         // Stores serial port data value
 const int buzzer = 9;
 
 int rot = 0; //Servo rotation
+const unsigned long max = 4251767295;
 unsigned long milNow = 0; //Current time
 unsigned long pastMilW = 0; //Stores last time plant was watered
 unsigned long pastMilI = 0; //Stores last time humidity information was sent
@@ -51,10 +52,10 @@ void water()
 void loop() {
   milNow = millis();
   
-  if(pastMilW >= 4251767295 && milNow < pastMilW) // Checks if millis() has rolled over and sets value for compensation
+  if(pastMilW >= max && milNow < pastMilW) // Checks if millis() has rolled over and sets value for compensation
   {
     rolledover = true;
-    intervalRollover = 4294967295 - pastMilW;
+    intervalRollover = max - pastMilW;
   }
   if(rolledover)
   {
