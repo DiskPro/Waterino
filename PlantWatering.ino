@@ -38,13 +38,13 @@ void water()
     s.write(0);
     if(Serial.available())
     {
-    Serial.println("Plant watered!");
+      Serial.println("Plant watered!");
     }
     else
     {
-    tone(buzzer, 1500);
-    delay(1000);
-    noTone(buzzer);
+      tone(buzzer, 1500);
+      delay(1000);
+      noTone(buzzer);
     }
     pastMilW = milNow;
 }
@@ -89,15 +89,15 @@ void loop() {
     {
       if(milNow - pastMilI >= 60000)
       {
-    Serial.print("Humidity: ");
-    Serial.print(HS.readHumidity());
-    Serial.println("-----------------------------------------------------");
-      pastMilI = milNow;
+        Serial.print("Humidity: ");
+        Serial.print(HS.readHumidity());
+        Serial.println("-----------------------------------------------------");
+        pastMilI = milNow;
       }
     }
     else
     {
-    Serial.println("Error reading sensor!");
+      Serial.println("Error reading sensor!");
     }
   }
   }
