@@ -16,6 +16,7 @@ unsigned long milNow = 0; //Current time
 unsigned long pastMilW = 0; //Stores last time plant was watered
 unsigned long pastMilI = 0; //Stores last time humidity information was sent
 unsigned long intervalRollover = 0; //Stores interval between max value for unsigned int and last time the plant was watered, compensating for rollover
+unsigned long interval = 43200000; //Interval between watering periods
 
 bool manual = false;
 bool rolledover = false;
@@ -61,7 +62,7 @@ void loop() {
   {
     milNow += intervalRollover; 
   }
-  if(milNow - pastMilW >= 43200000 && !manual) // Waters every 720 minutes (12 hours)
+  if(milNow - pastMilW >= interval && !manual) // Waters every 720 minutes (12 hours)
   {
     water();
   }
@@ -84,6 +85,18 @@ void loop() {
     if(Serial.read() == "water" && manual)
     {
       water();
+    }
+    if(Serial.read() == "time")
+    {
+      Serial.println("Input new interval in milliseconds:");
+      if(atol(Serial.read()) > 0 && !isnan(atol(Serial.read())) && atol(Serial.read()) < max)
+      {
+        interval = atol(Serial.read());
+      }
+      else
+      {
+        Serial.println("Please input a valid number!"); 
+      }
     }
     if(!isnan(HS.readHumidity())) // Checks if value is compatible/error occured
     {
