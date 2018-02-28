@@ -44,7 +44,7 @@ void water()
     else
     {
       tone(buzzer, 1500);
-      delay(1000);
+      delay(100);
       noTone(buzzer);
     }
     pastMilW = milNow;
