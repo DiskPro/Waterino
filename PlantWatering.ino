@@ -1,16 +1,13 @@
 #include <DHT.h>
 #include<Servo.h>
 
-#define TYPE DHT11
-#define HSPIN 4
-
-DHT HS(HSPIN, TYPE);
-
 char val;         // Stores serial port data value
 
 const int buzzer = 9;
 
 int rot = 0; //Servo rotation
+int humidityThreshold = 700;
+
 const unsigned long max = 4251767295;
 unsigned long milNow = 0; //Current time
 unsigned long pastMilW = 0; //Stores last time plant was watered
@@ -20,6 +17,7 @@ unsigned long interval = 43200000; //Interval between watering periods
 
 bool manual = false;
 bool rolledover = false;
+bool humidityModeOn = false;
 
 Servo s;
 
@@ -28,8 +26,6 @@ void setup()
   s.attach(3);
   s.write(0);
   Serial.begin(9600);       // Begins serial communication
-
-  HS.begin();
 }
 
 void water()
@@ -62,18 +58,36 @@ void loop() {
   {
     milNow += intervalRollover; 
   }
+  if(humidityModeOn && !manual && analogRead(A0) < humidityThreshold && analogRead(A0) > 100)
+  {
+    water();
+  }
   if(milNow - pastMilW >= interval && !manual) // Waters every 720 minutes (12 hours)
   {
     water();
   }
   if(Serial.available())       // Checks for Bluetooth conectivity
   {
+    if(Serial.read() == "humidity") 
+    {
+      if(humidityModeOn)
+      {
+        manual = false;
+        humidityModeOn = true;
+        Serial.println("Switched to automatic humidity-based watering mode!");
+      }
+      else
+      {
+        humidityModeOn = false;
+        Serial.println("Switched to regular automatic!");
+      }
+    }
     if(Serial.read() == "manual")
     {
       if(manual)
       {
        manual = false;
-       Serial.println("Switched to automatic mode!");
+       Serial.println("Switched to automatic!");
       }
       else
       {
@@ -86,24 +100,48 @@ void loop() {
     {
       water();
     }
-    if(Serial.read() == "time")
+    if(Serial.readString() == "config")
     {
-      Serial.println("Input new interval in milliseconds:");
-      if(atol(Serial.read()) > 0 && !isnan(atol(Serial.read())) && atol(Serial.read()) < max)
+      Serial.println("What do you want to change? (|H|umidity/|T|ime/|C|ancel)");
+      switch(Serial.read())
       {
-        interval = atol(Serial.read());
+      case 'H':
+      {
+        Serial.println("Input new humidity minimum for watering (between 100 and 1023)");
+        if(Serial.readString().toInt() > 100 && !isnan(Serial.readString().toInt()) && Serial.readString().toInt() < 1024)
+        {
+          humidityThreshold = Serial.readString().toInt();
+          Serial.println("Value changed successfully!");
+        }
+        else
+        {
+          Serial.println("Please input a valid number!");
+        }
       }
-      else
+      case 'T':
       {
-        Serial.println("Please input a valid number!"); 
+        Serial.println("Input new interval in milliseconds:");
+        if(Serial.readString().toInt() > 0 && !isnan(Serial.readString().toInt()) && Serial.readString().toInt() < max)
+        {
+          interval = atol(Serial.readString().toInt());
+        }
+        else
+        {
+          Serial.println("Please input a valid number!"); 
+        }
+      }
+      case 'C':
+      {
+        Serial.println("Config cancelled");
+      }
       }
     }
-    if(!isnan(HS.readHumidity())) // Checks if value is compatible/error occured
+    if(!isnan(analogRead(A0))) // Checks if value is compatible/error occured
     {
       if(milNow - pastMilI >= 60000)
       {
-        Serial.print("Humidity: ");
-        Serial.print(HS.readHumidity());
+        Serial.print("Soil Humidity: ");
+        Serial.print(analogRead(A0));
         Serial.println("-----------------------------------------------------");
         pastMilI = milNow;
       }
@@ -113,4 +151,4 @@ void loop() {
       Serial.println("Error reading sensor!");
     }
   }
-  }
+}
