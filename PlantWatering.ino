@@ -46,7 +46,8 @@ void water()
     pastMilW = milNow;
 }
  
-void loop() {
+void loop() 
+  {
   milNow = millis();
   
   if(pastMilW >= max && milNow < pastMilW) // Checks if millis() has rolled over and sets value for compensation
